@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Arjun Alpha — Chief Equity Strategist</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root{--gold:#C9A84C;--gold-light:#E8C96A;--gold-dim:#7A6230;--bg:#0A0A0A;--surface:#111111;--surface2:#1A1A1A;--border:#252525;--text:#E8E8E0;--text-dim:#777770;--green:#4CAF7A;--red:#E05555;--blue:#5B8FD4;--orange:#E08C3A;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;min-height:100vh;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:0.6;}
+  .wrap{max-width:1280px;margin:0 auto;padding:0 20px;position:relative;z-index:1;}
+  header{border-bottom:1px solid var(--border);padding:24px 0 18px;margin-bottom:24px;}
+  .hdr{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+  .brand{display:flex;align-items:center;gap:14px;}
+  .mono-badge{width:48px;height:48px;background:linear-gradient(135deg,var(--gold),var(--gold-dim));border-radius:3px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:19px;font-weight:900;color:#0A0A0A;flex-shrink:0;}
+  .brand h1{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--gold);line-height:1.2;}
+  .brand p{color:var(--text-dim);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;margin-top:2px;}
+  .hdr-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;}
+  .badges{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;}
+  .bdg{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:2px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;white-space:nowrap;}
+  .bdg-g{background:rgba(76,175,122,.1);border:1px solid rgba(76,175,122,.25);color:var(--green);}
+  .bdg-o{background:rgba(224,140,58,.1);border:1px solid rgba(224,140,58,.25);color:var(--orange);}
+  .bdg-r{background:rgba(224,85,85,.1);border:1px solid rgba(224,85,85,.25);color:var(--red);}
+  .bdg-b{background:rgba(91,143,212,.1);border:1px solid rgba(91,143,212,.25);color:var(--blue);}
+  .dot{width:5px;height:5px;border-radius:50%;animation:pulse 2s infinite;}
+  .dot-g{background:var(--green);}.dot-o{background:var(--orange);}.dot-r{background:var(--red);}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  #clock{color:var(--text-dim);font-family:'DM Mono',monospace;font-size:10px;}
+  #alert-banner{display:none;border:1px solid rgba(224,85,85,.3);border-left:3px solid var(--red);background:rgba(224,85,85,.06);padding:12px 16px;margin-bottom:18px;}
+  #alert-banner.on{display:block;}
+  .alert-hd{color:var(--red);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;}
+  .alert-bd{font-size:12px;color:#c07070;line-height:1.7;}
+  #price-ticker{display:none;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--green);padding:10px 16px;margin-bottom:18px;overflow-x:auto;}
+  #price-ticker.on{display:block;}
+  .ticker-inner{display:flex;gap:24px;align-items:center;min-width:max-content;}
+  .tick-item{display:flex;flex-direction:column;align-items:center;}
+  .tick-sym{font-family:'DM Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:1px;}
+  .tick-price{font-family:'Playfair Display',serif;font-size:16px;color:var(--text);}
+  .tick-chg{font-family:'DM Mono',monospace;font-size:9px;}
+  .tick-time{font-family:'DM Mono',monospace;font-size:9px;color:var(--text-dim);margin-left:auto;white-space:nowrap;align-self:center;}
+  .tick-divider{width:1px;background:var(--border);align-self:stretch;}
+  .pstrip{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--gold);padding:12px 18px;margin-bottom:20px;display:flex;gap:24px;flex-wrap:wrap;align-items:center;}
+  .ps-lbl{font-size:9px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;font-family:'DM Mono',monospace;}
+  .ps-val{font-family:'Playfair Display',serif;font-size:19px;margin-top:1px;}
+  .dv{width:1px;background:var(--border);align-self:stretch;}
+  .stitle{font-family:'DM Mono',monospace;font-size:9px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+  .stitle::after{content:'';flex:1;height:1px;background:var(--border);}
+  .mbar{background:var(--surface);border:1px solid var(--border);padding:10px 14px;margin-bottom:20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+  .mbar-lbl{font-family:'DM Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:1px;white-space:nowrap;}
+  #mon-status{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-dim);flex:1;}
+  .next-lbl{font-family:'DM Mono',monospace;font-size:9px;color:var(--blue);background:rgba(91,143,212,.1);border:1px solid rgba(91,143,212,.2);padding:2px 8px;border-radius:2px;white-space:nowrap;}
+  .btn{background:var(--gold);color:#0A0A0A;border:none;cursor:pointer;font-family:'DM Mono',monospace;font-size:9px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;padding:7px 16px;transition:background .15s;white-space:nowrap;}
+  .btn:hover{background:var(--gold-light);}.btn:disabled{background:var(--gold-dim);cursor:not-allowed;opacity:.6;}
+  .btn-r{background:rgba(224,85,85,.12);color:var(--red);border:1px solid rgba(224,85,85,.3);}.btn-r:hover{background:rgba(224,85,85,.22);}
+  .btn-s{background:transparent;color:var(--gold);border:1px solid var(--gold-dim);}.btn-s:hover{border-color:var(--gold);background:rgba(201,168,76,.08);}
+  .btn-b{background:rgba(91,143,212,.12);color:var(--blue);border:1px solid rgba(91,143,212,.3);}.btn-b:hover{background:rgba(91,143,212,.22);}
+  .tbl-wrap{overflow-x:auto;margin-bottom:24px;}
+  .htbl{width:100%;border-collapse:collapse;min-width:1200px;}
+  .htbl th{font-family:'DM Mono',monospace;font-size:8px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;padding:7px 9px;text-align:right;border-bottom:1px solid var(--border);font-weight:400;white-space:nowrap;}
+  .htbl th:first-child,.htbl th:nth-child(14),.htbl th:nth-child(15){text-align:left;}
+  .htbl td{padding:8px 9px;border-bottom:1px solid rgba(255,255,255,.03);font-family:'DM Mono',monospace;font-size:11px;text-align:right;color:var(--text-dim);vertical-align:top;}
+  .htbl td:first-child{text-align:left;}
+  .htbl tr:hover td{background:var(--surface2);}
+  .sym{color:var(--text);font-weight:500;font-family:'DM Sans',sans-serif;font-size:12px;}
+  .flag-row{background:rgba(224,85,85,.04);}.flag-row td{color:#b06060!important;}.flag-row .sym{color:var(--red)!important;}
+  .flag-icon{color:var(--red);font-size:9px;margin-left:3px;}
+  .ltp-live{color:var(--gold)!important;font-weight:500;}
+  .g{color:var(--green);}.r{color:var(--red);}.go{color:var(--gold);}.bl{color:var(--blue);}
+  .sig-cell{font-size:9px;line-height:1.5;text-align:left;}
+  .upd-cell{font-size:9px;line-height:1.5;max-width:180px;text-align:left;white-space:normal;color:var(--text-dim);}
+  .tag{cursor:pointer;display:inline-block;border-radius:2px;font-size:8px;font-family:'DM Mono',monospace;letter-spacing:1px;padding:2px 6px;text-transform:uppercase;transition:all .15s;}
+  .tag-a{background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.25);color:var(--gold);}.tag-a:hover{background:rgba(201,168,76,.2);border-color:var(--gold);}
+  .ipanel{background:var(--surface);border:1px solid var(--border);margin-bottom:20px;}
+  .itabs{display:flex;border-bottom:1px solid var(--border);overflow-x:auto;}
+  .itab{padding:9px 14px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text-dim);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;white-space:nowrap;}
+  .itab.on{color:var(--gold);border-bottom-color:var(--gold);}
+  .ibody{padding:12px 14px;}
+  .irow{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;}
+  .fld{flex:1;min-width:130px;}
+  .fld label{display:block;font-size:8px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:5px;}
+  .fld input,.fld select,.fld textarea{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:'DM Mono',monospace;font-size:11px;padding:7px 9px;outline:none;transition:border-color .15s;border-radius:0;}
+  .fld input:focus,.fld select:focus,.fld textarea:focus{border-color:var(--gold-dim);}
+  .fld textarea{resize:vertical;min-height:52px;}
+  .fld select{appearance:none;cursor:pointer;}.fld select option{background:var(--surface);}
+  .mpanel{display:none;}.mpanel.on{display:block;}
+  .cfg-panel{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--blue);padding:14px 16px;margin-bottom:20px;}
+  .cfg-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;}
+  .cfg-note{font-size:10px;color:var(--text-dim);margin-top:10px;line-height:1.7;font-family:'DM Mono',monospace;}
+  .cfg-note a{color:var(--gold);text-decoration:none;}
+  .loading{display:none;padding:24px;text-align:center;}.loading.on{display:block;}
+  .ldots{display:inline-flex;gap:5px;}
+  .ldot{width:5px;height:5px;border-radius:50%;background:var(--gold);animation:bounce 1.2s infinite;}
+  .ldot:nth-child(2){animation-delay:.2s}.ldot:nth-child(3){animation-delay:.4s}
+  @keyframes bounce{0%,80%,100%{transform:scale(.6);opacity:.4}40%{transform:scale(1);opacity:1}}
+  .ltxt{color:var(--text-dim);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;margin-top:8px;}
+  .opanel{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--gold);margin-bottom:24px;display:none;}
+  .opanel.on{display:block;}
+  .ohdr{display:flex;justify-content:space-between;align-items:center;padding:9px 13px;border-bottom:1px solid var(--border);}
+  .otitle{font-family:'DM Mono',monospace;font-size:9px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;}
+  .obody{padding:16px;font-size:13px;line-height:1.8;}
+  #stream-out{white-space:pre-wrap;word-break:break-word;color:var(--text);}
+  #stream-out strong{color:var(--gold);}
+  .disc{background:rgba(224,85,85,.04);border:1px solid rgba(224,85,85,.15);padding:9px 13px;margin-bottom:16px;font-size:10px;color:#8A5050;font-family:'DM Mono',monospace;line-height:1.6;}
+  footer{border-top:1px solid var(--border);padding:14px 0;text-align:center;color:var(--text-dim);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;}
+  @media(max-width:640px){.cfg-grid{grid-template-columns:1fr;}.hdr{flex-direction:column;align-items:flex-start;}.hdr-right{align-items:flex-start;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="hdr">
+    <div class="brand">
+      <div class="mono-badge">AA</div>
+      <div>
+        <h1>Arjun Alpha</h1>
+        <p>Chief Equity Strategist &amp; Trading Architect · NSE/BSE</p>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <div class="badges">
+        <div class="bdg bdg-g"><div class="dot dot-g"></div>AGENT ACTIVE</div>
+        <div class="bdg bdg-o" id="mon-badge"><div class="dot dot-o"></div>MONITOR: OFF</div>
+        <div class="bdg bdg-b" id="kite-badge"><div class="dot" style="background:var(--blue)"></div>KITE: NOT CONNECTED</div>
+      </div>
+      <div id="clock">—</div>
+    </div>
+  </div>
+</header>
+
+<div id="alert-banner">
+  <div class="alert-hd">⚠ SELL ALERT — CRITERIA TRIGGERED</div>
+  <div class="alert-bd" id="alert-body"></div>
+</div>
+
+<div id="price-ticker"><div class="ticker-inner" id="ticker-inner"><span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text-dim)">Fetching live prices…</span></div></div>
+
+<div class="stitle">Portfolio Overview</div>
+<div class="pstrip">
+  <div><div class="ps-lbl">Invested</div><div class="ps-val" id="p-inv">—</div></div>
+  <div class="dv"></div>
+  <div><div class="ps-lbl">Current Value</div><div class="ps-val" id="p-val">—</div></div>
+  <div class="dv"></div>
+  <div><div class="ps-lbl">Total P&amp;L</div><div class="ps-val" id="p-pnl">—</div></div>
+  <div class="dv"></div>
+  <div><div class="ps-lbl">Return</div><div class="ps-val" id="p-ret">—</div></div>
+  <div class="dv"></div>
+  <div><div class="ps-lbl">Holdings</div><div class="ps-val">10</div></div>
+  <div class="dv"></div>
+  <div><div class="ps-lbl">Price Source</div><div class="ps-val" style="font-size:13px" id="p-src">Snapshot</div></div>
+  <div class="dv"></div>
+  <div><div class="ps-lbl">Next Weekly Email</div><div class="ps-val" style="font-size:13px" id="p-thu">—</div></div>
+</div>
+
+<div class="stitle">Live Monitor</div>
+<div class="mbar">
+  <div class="mbar-lbl">AUTO-SCAN</div>
+  <div id="mon-status">Inactive — configure API keys below, then click Start</div>
+  <span class="next-lbl" id="next-lbl">—</span>
+  <button class="btn" id="btn-start" onclick="startMonitor()">▶ Start Monitor</button>
+  <button class="btn btn-r" id="btn-stop" onclick="stopMonitor()" style="display:none">■ Stop</button>
+  <button class="btn btn-b" onclick="fetchLivePrices(true)">⟳ Refresh Prices</button>
+  <button class="btn btn-b" onclick="runManualScan()">⟳ Scan Now</button>
+</div>
+
+<div class="stitle">Holdings</div>
+<div class="tbl-wrap">
+<table class="htbl">
+  <thead><tr>
+    <th>Stock</th><th>Qty</th><th>Avg Cost</th>
+    <th>LTP (Live)</th><th>Day Chg%</th>
+    <th>Invested (₹)</th><th>Cur. Val (₹)</th><th>P&amp;L (₹)</th><th>P&amp;L %</th>
+    <th>Mkt Cap</th><th>P/E</th><th>ROE</th><th>Debt/Eq</th>
+    <th>Sell Signal</th><th>Key Updates</th><th>Action</th>
+  </tr></thead>
+  <tbody id="htbody"></tbody>
+</table>
+</div>
+
+<div class="stitle">Analysis Engine</div>
+<div class="ipanel">
+  <div class="itabs">
+    <div class="itab on" onclick="swTab('pm')">Portfolio Monitor</div>
+    <div class="itab"    onclick="swTab('os')">Opportunity Scanner</div>
+    <div class="itab"    onclick="swTab('wr')">Weekly Report</div>
+    <div class="itab"    onclick="swTab('cq')">Custom Query</div>
+  </div>
+  <div class="ibody mpanel on" id="tab-pm">
+    <div class="irow">
+      <div class="fld"><label>Stock</label>
+        <select id="pm-stk">
+          <option value="">— Select —</option>
+          <option>BEL</option><option>BSOFT</option><option>CIPLA</option><option>HDFCBANK</option>
+          <option>ICICIBANK</option><option>LICI</option><option>LTTS</option><option>NTPC</option>
+          <option>PNB</option><option>TATAPOWER</option>
+          <option value="ALL">🔍 Full Portfolio Review</option>
+        </select>
+      </div>
+      <div class="fld" style="flex:.5"><label>Focus</label>
+        <select id="pm-focus"><option>HOLD or SELL?</option><option>Exit Levels</option><option>Risk Assessment</option><option>Rebalance Advice</option></select>
+      </div>
+      <button class="btn" onclick="runPM()">Run PortfolioMonitorBot →</button>
+    </div>
+  </div>
+  <div class="ibody mpanel" id="tab-os">
+    <div class="irow">
+      <div class="fld"><label>Stock / Sector</label><input id="os-q" type="text" placeholder="e.g. RELIANCE, Banking sector, Smallcap IT…"/></div>
+      <div class="fld" style="flex:.4"><label>Min Score</label>
+        <select id="os-thr"><option value="6">6+</option><option value="7">7+</option><option value="8" selected>8+ (High Conviction)</option></select>
+      </div>
+      <button class="btn" onclick="runOS()">Run OpportunityScannerBot →</button>
+    </div>
+  </div>
+  <div class="ibody mpanel" id="tab-wr">
+    <div class="irow" style="align-items:center">
+      <p style="flex:1;color:var(--text-dim);font-size:12px;line-height:1.7">Generate <strong style="color:var(--gold)">Thursday Weekly Report</strong> — full portfolio table with live prices, sell signals, company-specific updates, next steps &amp; new buy targets.</p>
+      <button class="btn" onclick="runWR()">Generate Weekly Report →</button>
+    </div>
+  </div>
+  <div class="ibody mpanel" id="tab-cq">
+    <div class="irow">
+      <div class="fld" style="flex:1"><label>Your Question</label><textarea id="cq-q" placeholder="Ask Arjun Alpha anything — market outlook, portfolio strategy, sector rotation, specific trade setup…"></textarea></div>
+      <button class="btn" onclick="runCQ()">Ask Arjun →</button>
+    </div>
+  </div>
+</div>
+
+<div class="loading" id="loading">
+  <div class="ldots"><div class="ldot"></div><div class="ldot"></div><div class="ldot"></div></div>
+  <div class="ltxt" id="ltxt">SCANNING MARKETS…</div>
+</div>
+
+<div class="opanel" id="opanel">
+  <div class="ohdr">
+    <div class="otitle" id="otitle">Analysis Output</div>
+    <div style="display:flex;gap:6px;">
+      <button class="btn btn-b" style="font-size:8px;padding:4px 10px" onclick="sendEmail('manual')">📧 Email This</button>
+      <button class="btn btn-s" style="font-size:8px;padding:4px 10px" onclick="copyOut()">COPY</button>
+    </div>
+  </div>
+  <div class="obody"><div id="stream-out"></div></div>
+</div>
+
+<div class="stitle">Configuration</div>
+<div class="cfg-panel">
+  <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--blue);letter-spacing:2px;text-transform:uppercase">API Keys &amp; Automation</div>
+  <div class="cfg-grid">
+    <div class="fld"><label>Groq API Key</label><input type="password" id="cfg-groq" placeholder="gsk_…" oninput="saveCfg()"/></div>
+    <div class="fld"><label>Make.com LTP Webhook URL</label><input type="text" id="cfg-ltp-hook" placeholder="https://hook.eu2.make.com/…" oninput="saveCfg()"/></div>
+    <div class="fld"><label>Make.com Alert/Email Webhook URL</label><input type="text" id="cfg-alert-hook" placeholder="https://hook.eu2.make.com/…" oninput="saveCfg()"/></div>
+    <div class="fld"><label>Your Email</label><input type="email" id="cfg-email" placeholder="you@capgemini.com" oninput="saveCfg()"/></div>
+    <div class="fld"><label>Kite API Key (passed to Make.com)</label><input type="password" id="cfg-kite-key" placeholder="your kite api_key" oninput="saveCfg()"/></div>
+    <div class="fld"><label>Scan Interval (minutes)</label><input type="number" id="cfg-interval" value="30" min="5" max="240" oninput="saveCfg()"/></div>
+  </div>
+  <div class="cfg-note">
+    All keys are stored in browser memory only — never persisted or shared externally.<br>
+    LTP Webhook = Scenario 1 in Make.com (calls Kite Quote API, returns live prices JSON).<br>
+    Alert/Email Webhook = Scenario 2 in Make.com (sends Gmail alerts + weekly reports).<br>
+    Kite Connect: <a href="https://kite.trade" target="_blank">kite.trade</a> (₹2,000/mo) · Groq free: <a href="https://console.groq.com" target="_blank">console.groq.com</a> (14,400 req/day)
+  </div>
+</div>
+
+<div class="disc">⚠ FOR INFORMATIONAL PURPOSES ONLY — AI-powered analysis tool. All outputs are educational, not financial advice. Past performance does not indicate future results. Consult a SEBI-registered investment advisor before trading. Capital is at risk.</div>
+<footer>Arjun Alpha · Groq + Llama 3.3 70B · Kite Connect · Make.com · GitHub Pages · NSE/BSE · ₹0 operational cost</footer>
+</div>
+
+<script>
+// ═══ HOLDINGS BASE DATA ═══
+const BASE=[
+  {sym:"BEL",       qty:19,  avg:414.54, ltp:441.60,  inv:7876.20,  sector:"Defence/PSU",      mktcap:"Large", pe:"38–42",  roe:"~22–25%",     debt:"~0.0–0.1",        notes:"Strong order book; Make-in-India. Watch order slowdown."},
+  {sym:"BSOFT",     qty:75,  avg:393.34, ltp:365.05,  inv:29500.80, sector:"IT Services",       mktcap:"Mid",   pe:"32–36",  roe:"~13–16%",     debt:"Debt-free",       notes:"USD revenue pressure. Watch deal wins & margin guidance."},
+  {sym:"CIPLA",     qty:9,   avg:1355.43,ltp:1211.30, inv:12198.90, sector:"Pharma",            mktcap:"Large", pe:"24–26",  roe:"~15–18%",     debt:"~0.02–0.05",      notes:"US FDA observations key. Domestic formulations growing."},
+  {sym:"HDFCBANK",  qty:20,  avg:917.26, ltp:794.70,  inv:18345.25, sector:"Banking (Private)", mktcap:"Large", pe:"18–20",  roe:"~13–15%",     debt:"Bank (CET-1>13%)",notes:"Post-merger NIM compression. Watch deposit growth & GNPA."},
+  {sym:"ICICIBANK", qty:15,  avg:1297.96,ltp:1351.10, inv:19469.35, sector:"Banking (Private)", mktcap:"Large", pe:"18–20",  roe:"~17–18%",     debt:"Bank (Tier-1 reg)",notes:"Best-in-class execution. Consistent GNPA improvement."},
+  {sym:"LICI",      qty:22,  avg:851.87, ltp:804.25,  inv:18741.10, sector:"Insurance (PSU)",   mktcap:"Large", pe:"11–35",  roe:"~22–24%",     debt:"Near debt-free",  notes:"VNB growth & embedded value are key monitorables."},
+  {sym:"LTTS",      qty:7,   avg:3923.38,ltp:3358.95, inv:27463.65, sector:"IT Eng. Services",  mktcap:"Mid",   pe:"33–40",  roe:"~21–24%",     debt:"~0.1–0.2",        notes:"ER&D slowdown globally. Transport & telecom verticals weak."},
+  {sym:"NTPC",      qty:28,  avg:339.73, ltp:386.25,  inv:9512.40,  sector:"Power/Utilities",   mktcap:"Large", pe:"13–15",  roe:"~11–12%",     debt:"High PSU (reg.)", notes:"Renewable mix improving. Tariff revisions upcoming catalyst."},
+  {sym:"PNB",       qty:476, avg:43.20,  ltp:110.75,  inv:20564.64, sector:"Banking (PSU)",     mktcap:"Large", pe:"~8–10x", roe:"~8–10%",      debt:"Bank structure",  notes:"+156% gain. NPA recovery maturing. Assess profit-booking."},
+  {sym:"TATAPOWER", qty:20,  avg:390.21, ltp:409.55,  inv:7804.20,  sector:"Power/Renewable",   mktcap:"Mid",   pe:"38–45",  roe:"Low–mid SD",  debt:"~0.8–1.2",        notes:"Solar EPC turning profitable. Mundra resolution key."},
+];
+
+let livePrices={}, liveConnected=false, monTimer=null, scanN=0;
+
+// ═══ HELPERS ═══
+function fmt(n){return '₹'+Math.abs(n).toLocaleString('en-IN',{maximumFractionDigits:0});}
+function fmtP(n){return (n>=0?'+':'')+n.toFixed(2)+'%';}
+function getLTP(sym){return(livePrices[sym]&&livePrices[sym].ltp)||BASE.find(h=>h.sym===sym).ltp;}
+
+// ═══ SELL SIGNALS ═══
+function getSigs(h){
+  const ltp=getLTP(h.sym),pct=((ltp-h.avg)/h.avg)*100;
+  const s=[];
+  if(h.sym==="PNB"&&pct>140)s.push("Wealth Maximisation: +"+pct.toFixed(1)+"% — assess exit");
+  if(h.sym==="LTTS"&&pct<-12)s.push("Technical Breakdown: "+pct.toFixed(1)+"% — check 200DMA");
+  if(h.sym==="HDFCBANK"&&pct<-10)s.push("Technical Breakdown: "+pct.toFixed(1)+"% — monitor 200DMA");
+  if(h.sym==="CIPLA"&&pct<-8)s.push("Drawdown Alert: "+pct.toFixed(1)+"% — review pipeline");
+  if(h.sym==="BSOFT"&&pct<-6)s.push("Sector Weakness: "+pct.toFixed(1)+"% — mid-cap IT pressure");
+  if(h.sym==="LICI"&&pct<-5)s.push("Watchlist: "+pct.toFixed(1)+"% — monitor VNB data");
+  if(liveConnected&&livePrices[h.sym]){const d=livePrices[h.sym].change_pct||0;if(d<-4)s.push("Intraday Alert: "+d.toFixed(2)+"% today");}
+  return s.length?s:["✓ No active sell trigger"];
+}
+
+// ═══ RENDER ═══
+function renderPortfolio(){
+  let tI=0,tV=0;
+  const rows=BASE.map(h=>{
+    const ltp=getLTP(h.sym),cv=ltp*h.qty,pnl=cv-h.inv,pct=((ltp-h.avg)/h.avg)*100;
+    const dayChg=livePrices[h.sym]?.change_pct??null;
+    tI+=h.inv;tV+=cv;
+    const sigs=getSigs(h),alert=!sigs[0].startsWith('✓');
+    const sigH=sigs.map(s=>s.startsWith('✓')?`<span class="g" style="font-size:9px">${s}</span>`:`<span class="r" style="font-size:9px">⚠ ${s}</span>`).join('<br>');
+    const dayH=dayChg!==null?`<span class="${dayChg>=0?'g':'r'}">${fmtP(dayChg)}</span>`:`<span style="color:var(--text-dim);font-size:9px">—</span>`;
+    return`<tr class="${alert?'flag-row':''}">
+      <td><span class="sym">${h.sym}</span>${alert?'<span class="flag-icon">⚠</span>':''}</td>
+      <td>${h.qty}</td><td>₹${h.avg.toFixed(2)}</td>
+      <td class="${livePrices[h.sym]?'ltp-live':''}" id="ltp-${h.sym}">₹${ltp.toFixed(2)}</td>
+      <td id="dchg-${h.sym}">${dayH}</td>
+      <td>${fmt(h.inv)}</td>
+      <td id="cv-${h.sym}">${fmt(cv)}</td>
+      <td class="${pnl>=0?'g':'r'}">${pnl>=0?'+':'-'}${fmt(pnl)}</td>
+      <td class="${pct>=0?'g':'r'}">${fmtP(pct)}</td>
+      <td class="bl" style="font-size:10px">${h.mktcap}</td>
+      <td class="go">${h.pe}</td>
+      <td style="font-size:9px;text-align:left">${h.roe}</td>
+      <td style="font-size:9px;text-align:left">${h.debt}</td>
+      <td class="sig-cell">${sigH}</td>
+      <td class="upd-cell">${h.notes}</td>
+      <td><span class="tag tag-a" onclick="quickAna('${h.sym}')">Analyse</span></td>
+    </tr>`;
+  });
+  document.getElementById('htbody').innerHTML=rows.join('');
+  const pnl=tV-tI,ret=(pnl/tI)*100;
+  document.getElementById('p-inv').textContent=fmt(tI);
+  document.getElementById('p-val').textContent=fmt(tV);
+  const pe=document.getElementById('p-pnl');pe.textContent=(pnl>=0?'+':'-')+fmt(pnl);pe.className='ps-val '+(pnl>=0?'g':'r');
+  const re=document.getElementById('p-ret');re.textContent=fmtP(ret);re.className='ps-val '+(ret>=0?'g':'r');
+  document.getElementById('p-src').textContent=liveConnected?'🟢 Kite Live':'📋 Snapshot';
+}
+
+// ═══ KITE LIVE PRICES via Make.com proxy ═══
+async function fetchLivePrices(manual=false){
+  const cfg=getCfg();
+  if(!cfg.ltpHook){if(manual)alert('Set your Make.com LTP Webhook URL in Configuration.');return;}
+  try{
+    const symbols=BASE.map(h=>`NSE:${h.sym}`).join(',');
+    const resp=await fetch(cfg.ltpHook,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'ltp',symbols,api_key:cfg.kiteKey,access_token:cfg.kiteAccess})});
+    if(!resp.ok)throw new Error('HTTP '+resp.status);
+    const data=await resp.json();
+    // Expected response: { "NSE:BEL": { "ltp": 441.6, "change_pct": 0.5 }, ... }
+    if(data&&typeof data==='object'){
+      BASE.forEach(h=>{
+        const k=`NSE:${h.sym}`;
+        if(data[k]){livePrices[h.sym]={ltp:parseFloat(data[k].ltp||data[k].last_price||h.ltp),change_pct:parseFloat(data[k].change_pct||data[k].net_change||0)};}
+      });
+      liveConnected=true;
+      document.getElementById('kite-badge').innerHTML='<div class="dot dot-g"></div>KITE: LIVE';
+      document.getElementById('kite-badge').className='bdg bdg-g';
+      renderPortfolio();
+      const t=new Date().toLocaleTimeString('en-IN',{timeZone:'Asia/Kolkata'});
+      const el=document.getElementById('price-ticker');el.classList.add('on');
+      const items=BASE.map(h=>{const lp=livePrices[h.sym];if(!lp)return'';return`<div class="tick-item"><div class="tick-sym">${h.sym}</div><div class="tick-price">₹${lp.ltp.toFixed(2)}</div><div class="tick-chg ${lp.change_pct>=0?'g':'r'}">${fmtP(lp.change_pct)}</div></div><div class="tick-divider"></div>`;}).join('');
+      document.getElementById('ticker-inner').innerHTML=items+`<div class="tick-time">Updated ${t} IST</div>`;
+    }
+  }catch(e){
+    if(manual)alert('Price fetch error: '+e.message+'\n\nCheck LTP Webhook URL and Make.com Scenario 1 setup.');
+    document.getElementById('kite-badge').innerHTML='<div class="dot dot-r"></div>KITE: ERROR';
+    document.getElementById('kite-badge').className='bdg bdg-r';
+  }
+}
+
+// ═══ MONITOR ═══
+function startMonitor(){
+  const cfg=getCfg();if(!cfg.groq){alert('Set Groq API key first.');return;}
+  const iv=(cfg.interval||30)*60*1000;
+  document.getElementById('btn-start').style.display='none';
+  document.getElementById('btn-stop').style.display='inline-block';
+  document.getElementById('mon-badge').innerHTML='<div class="dot dot-g"></div>MONITOR: ON';
+  document.getElementById('mon-badge').className='bdg bdg-g';
+  doScan();monTimer=setInterval(doScan,iv);
+}
+function stopMonitor(){
+  clearInterval(monTimer);monTimer=null;
+  document.getElementById('btn-start').style.display='inline-block';
+  document.getElementById('btn-stop').style.display='none';
+  document.getElementById('mon-badge').innerHTML='<div class="dot dot-o"></div>MONITOR: OFF';
+  document.getElementById('mon-badge').className='bdg bdg-o';
+  document.getElementById('mon-status').textContent='Monitor stopped.';
+}
+function runManualScan(){doScan();}
+
+async function doScan(){
+  scanN++;
+  const ist=new Date().toLocaleString('en-IN',{timeZone:'Asia/Kolkata'});
+  document.getElementById('mon-status').textContent=`Scan #${scanN} — ${ist} — fetching live prices…`;
+  await fetchLivePrices(false);
+  document.getElementById('mon-status').textContent=`Scan #${scanN} — ${ist} — running sell analysis…`;
+  const pBlock=BASE.map(h=>{const ltp=getLTP(h.sym);return`${h.sym}: LTP ₹${ltp.toFixed(2)}, ${fmtP(((ltp-h.avg)/h.avg)*100)} from avg`;}).join('\n');
+  const prompt=`AUTOMATED SELL SCAN #${scanN} — ${ist} IST\n\nCURRENT LIVE PRICES:\n${pBlock}\n\nFor each holding evaluate all 6 sell conditions using live prices.\nReturn ONLY stocks with ACTIVELY triggered conditions.\nFormat: STOCK | CONDITION | SEVERITY (HIGH/MEDIUM) | ACTION\nIf none: "NO SELL SIGNALS — all positions within acceptable parameters."\nBe concise. Automated alert.`;
+  try{
+    const result=await callGroq(prompt);
+    const hasAlert=!result.toLowerCase().includes('no sell signals');
+    document.getElementById('mon-status').textContent=`Scan #${scanN} — ${new Date().toLocaleTimeString('en-IN',{timeZone:'Asia/Kolkata'})} IST — ${hasAlert?'⚠ ALERTS FOUND':'✓ All clear'}`;
+    if(hasAlert){
+      document.getElementById('alert-banner').classList.add('on');
+      document.getElementById('alert-body').innerHTML=result.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+      sendEmail('alert',result);
+    }else{document.getElementById('alert-banner').classList.remove('on');}
+  }catch(e){document.getElementById('mon-status').textContent=`Scan #${scanN} — error: ${e.message}`;}
+}
+
+// ═══ GROQ ═══
+const SYS=`You are Arjun Alpha — Chief Equity Strategist & Trading Architect, 25+ years NSE/BSE.
+PHILOSOPHY: Wealth creation = Compounding + Capital protection. No stock attachment. Price confirms, fundamentals sustain.
+FUNDAMENTALS (need ≥6/7): Low Debt | ROE/ROCE ≥15-20% | CFO/PAT ≥1 | Growth ≥20% | PEG<1.5 | Governance | Sector tailwinds
+TECHNICALS (need ≥3/4): RSI<70 | Volume 125D ≥2x avg | Breakout or HH-HL | Above 200DMA
+SELL: (1)Valuation Exhaustion PEG>2 (2)Growth Slowdown (3)Technical Breakdown 200DMA (4)Capital Reallocation (5)Thesis Violation (6)Wealth Maximization
+SCORING /10: Fundamentals 4 | Technicals 3 | Portfolio Fit 2 | Risk 1 → 8-10=High Conviction | 6-7=Moderate | 0-5=Reject
+HARD RULES: No trade without SL | Reject low liquidity | No emotional decisions
+PORTFOLIO: BEL 19sh@414.54 | BSOFT 75sh@393.34 | CIPLA 9sh@1355.43 | HDFCBANK 20sh@917.26 | ICICIBANK 15sh@1297.96 | LICI 22sh@851.87 | LTTS 7sh@3923.38 | NTPC 28sh@339.73 | PNB 476sh@43.20(+156%) | TATAPOWER 20sh@390.21
+OUTPUT: **VERDICT:** | **ACTION:** BUY/SELL/HOLD/WATCHLIST/NO TRADE | **SCORE:** X/10 | **KEY LEVELS:** Entry ₹X | SL ₹X | T1 ₹X | T2 ₹X | **RATIONALE:** bullets | **RISK:** key risks`;
+
+async function callGroq(msg){
+  const key=getCfg().groq;if(!key)throw new Error('Groq API key not set — enter in Configuration.');
+  const r=await fetch('https://api.groq.com/openai/v1/chat/completions',{method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+    body:JSON.stringify({model:'llama-3.3-70b-versatile',max_tokens:2000,temperature:.3,
+      messages:[{role:'system',content:SYS},{role:'user',content:msg}]})});
+  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||'HTTP '+r.status);}
+  return(await r.json()).choices[0].message.content;
+}
+
+// ═══ ANALYSIS BOTS ═══
+async function runPM(){
+  const stk=document.getElementById('pm-stk').value,foc=document.getElementById('pm-focus').value;
+  if(!stk){alert('Select a stock.');return;}
+  const pNote=liveConnected?'\nNOTE: Using live Kite prices.':'';
+  let p;
+  if(stk==='ALL'){
+    const prices=BASE.map(h=>`${h.sym}: ₹${getLTP(h.sym).toFixed(2)} (${fmtP(((getLTP(h.sym)-h.avg)/h.avg)*100)} vs avg)`).join('\n');
+    p=`Run PortfolioMonitorBot — FULL PORTFOLIO.${pNote}\n\nLIVE PRICES:\n${prices}\n\nFor all 10: apply sell framework + score. Output per stock: HOLD/PARTIAL SELL/FULL EXIT + brief rationale.\nThen: portfolio health | top 2 urgent actions | concentration risks.`;
+  }else{
+    const h=BASE.find(x=>x.sym===stk),ltp=getLTP(stk),pct=((ltp-h.avg)/h.avg)*100;
+    p=`Run PortfolioMonitorBot on ${stk}.${pNote}\n${h.qty} shares @ ₹${h.avg} avg, Live LTP ₹${ltp.toFixed(2)}, P&L: ${fmtP(pct)}.\nSector: ${h.sector} | PE: ${h.pe} | ROE: ${h.roe}\nFocus: ${foc}\nApply full sell framework, score it, give action with entry/SL/targets.`;
+  }
+  await query(p,stk==='ALL'?'FULL PORTFOLIO REVIEW':'PORTFOLIOMONITORBOT · '+stk);
+}
+
+async function runOS(){
+  const q=document.getElementById('os-q').value.trim(),t=document.getElementById('os-thr').value;
+  if(!q){alert('Enter stock or sector.');return;}
+  await query(`OpportunityScannerBot: ${q}\nMin score: ${t}/10.\nApply fundamental (≥6/7) + technical (≥3/4) + portfolio fit.\nScore it. BUY/WATCHLIST/REJECT + entry/SL/targets.\nPortfolio context: hold Banking (HDFC,ICICI,PNB), IT (BSOFT,LTTS), Pharma (CIPLA), Power (NTPC,TATAPOWER), Defence (BEL), Insurance (LICI).\nWould this improve diversification?`,'OPPORTUNITYSCANNERBOT · '+q.toUpperCase());
+}
+
+async function runWR(){
+  const now=new Date().toLocaleDateString('en-IN',{timeZone:'Asia/Kolkata',weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const prices=liveConnected?BASE.map(h=>`${h.sym}: ₹${getLTP(h.sym).toFixed(2)}`).join(' | '):'[snapshot — Kite not connected]';
+  await query(`Thursday Weekly Portfolio Brief — ${now}.\nLIVE PRICES: ${prices}\n\nSECTION 1 — PORTFOLIO TABLE (per stock):\nColumns: Stock | HOLD/PARTIAL SELL/EXIT | Score/10 | PE comment | ROE | Sell Signal | Key company update this week | Next step\n\nSECTION 2 — PORTFOLIO HEALTH:\nOverall P&L | Top performer (PNB +156%) | Biggest drags | 3-4 insights\n\nSECTION 3 — KEY NEXT STEPS (numbered, specific, next 1-2 weeks)\n\nSECTION 4 — BUY TARGETS (3 new stocks):\nName | Why it fits | Score estimate | Entry range | What to watch\nFocus: reduce banking/IT concentration | quality | 15%+ CAGR\n\nContext: April 2026 Indian market. Be specific and actionable.`,'THURSDAY WEEKLY BRIEF · '+now);
+}
+
+async function runCQ(){const q=document.getElementById('cq-q').value.trim();if(!q){alert('Enter question.');return;}await query(q,'ARJUN ALPHA ANALYSIS');}
+function quickAna(sym){swTab('pm');document.getElementById('pm-stk').value=sym;runPM();}
+
+async function query(msg,title){
+  const msgs=['SCANNING LIVE MARKETS…','APPLYING FUNDAMENTAL FILTERS…','RUNNING TECHNICAL CHECKS…','BUILDING RATIONALE…','FINALISING ANALYSIS…'];
+  let idx=0;const le=document.getElementById('loading'),lt=document.getElementById('ltxt');
+  le.classList.add('on');lt.textContent=msgs[0];
+  const iv=setInterval(()=>{idx=(idx+1)%msgs.length;lt.textContent=msgs[idx];},2200);
+  document.getElementById('opanel').classList.remove('on');document.getElementById('stream-out').innerHTML='';
+  try{
+    const result=await callGroq(msg);clearInterval(iv);le.classList.remove('on');
+    document.getElementById('otitle').textContent=title;document.getElementById('opanel').classList.add('on');
+    document.getElementById('stream-out').innerHTML=result.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+  }catch(e){
+    clearInterval(iv);le.classList.remove('on');document.getElementById('otitle').textContent='ERROR';document.getElementById('opanel').classList.add('on');
+    document.getElementById('stream-out').innerHTML=`<span style="color:var(--red)">⚠ ${e.message}</span><br><br><span style="color:var(--text-dim);font-size:11px">Get free Groq key at <a href="https://console.groq.com" target="_blank" style="color:var(--gold)">console.groq.com</a></span>`;
+  }
+}
+
+// ═══ EMAIL ═══
+async function sendEmail(type,content){
+  const cfg=getCfg();if(!cfg.alertHook){if(type==='manual')alert('Set Make.com Alert Webhook URL in Configuration.');return;}
+  const body=content||document.getElementById('stream-out').innerText;
+  const subjects={alert:'⚠ Arjun Alpha — SELL ALERT: Action Required',weekly:'📊 Arjun Alpha — Thursday Weekly Brief',manual:'📋 Arjun Alpha — Portfolio Analysis'};
+  try{
+    await fetch(cfg.alertHook,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({type,subject:subjects[type]||'Arjun Alpha',to:cfg.email,body_text:body,
+        timestamp:new Date().toLocaleString('en-IN',{timeZone:'Asia/Kolkata'})+' IST',
+        portfolio_value:document.getElementById('p-val').textContent,portfolio_pnl:document.getElementById('p-pnl').textContent})});
+    if(type==='manual')alert('✓ Sent to Make.com!');
+  }catch(e){if(type==='manual')alert('Webhook error: '+e.message);}
+}
+
+// ═══ UTILS ═══
+function swTab(n){document.querySelectorAll('.itab').forEach((t,i)=>t.classList.toggle('on',['pm','os','wr','cq'][i]===n));document.querySelectorAll('.mpanel').forEach(p=>p.classList.remove('on'));document.getElementById('tab-'+n).classList.add('on');}
+function copyOut(){navigator.clipboard.writeText(document.getElementById('stream-out').innerText).then(()=>{const b=event.target;b.textContent='COPIED ✓';setTimeout(()=>b.textContent='COPY',2000);});}
+function saveCfg(){window._cfg={groq:document.getElementById('cfg-groq').value.trim(),ltpHook:document.getElementById('cfg-ltp-hook').value.trim(),alertHook:document.getElementById('cfg-alert-hook').value.trim(),email:document.getElementById('cfg-email').value.trim(),kiteKey:document.getElementById('cfg-kite-key').value.trim(),kiteAccess:'',interval:parseInt(document.getElementById('cfg-interval').value)||30};}
+function getCfg(){return window._cfg||{groq:'',ltpHook:'',alertHook:'',email:'',kiteKey:'',kiteAccess:'',interval:30};}
+function updateClock(){const ist=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Kolkata'}));const hh=String(ist.getHours()).padStart(2,'0'),mm=String(ist.getMinutes()).padStart(2,'0'),ss=String(ist.getSeconds()).padStart(2,'0');const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];document.getElementById('clock').textContent=`${days[ist.getDay()]} ${hh}:${mm}:${ss} IST`;}
+function setNextThursday(){const ist=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Kolkata'}));const d=(4-ist.getDay()+7)%7||7;const nxt=new Date(ist);nxt.setDate(ist.getDate()+d);const s=nxt.toLocaleDateString('en-IN',{month:'short',day:'numeric',timeZone:'Asia/Kolkata'});document.getElementById('p-thu').textContent=s+' · 10:00 AM IST';document.getElementById('next-lbl').textContent='Next weekly: Thu '+s;}
+
+saveCfg();renderPortfolio();setNextThursday();setInterval(updateClock,1000);updateClock();
+</script>
+</body>
+</html>
