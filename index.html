@@ -342,11 +342,11 @@ function renderPortfolio(){
 // ═══ KITE LIVE PRICES via Make.com proxy ═══
 async function fetchLivePrices(manual=false){
   const cfg=getCfg();
-  if(!cfg.ltpHook){if(manual)alert('Set your Make.com LTP Webhook URL in Configuration.');return;}
+  if(!cfg.ltpHook||!cfg.kiteKey||!cfg.kiteAccess){if(manual)alert('Set Cloudflare Worker URL, Kite API Key and Access Token in Configuration.');return;}
   try{
     const symbols=BASE.map(h=>`NSE:${h.sym}`).join(',');
-    const resp=await fetch(cfg.ltpHook,{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({action:'ltp',symbols,api_key:cfg.kiteKey,access_token:cfg.kiteAccess})});
+   const params=new URLSearchParams({api_key:cfg.kiteKey,access_token:cfg.kiteAccess});symbols.split(',').forEach(s=>params.append('i',s));
+const resp=await fetch(cfg.ltpHook+'?'+params.toString(),{method:'GET'});
     if(!resp.ok)throw new Error('HTTP '+resp.status);
     const data=await resp.json();
     // Expected response: { "NSE:BEL": { "ltp": 441.6, "change_pct": 0.5 }, ... }
