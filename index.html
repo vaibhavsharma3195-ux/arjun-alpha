@@ -264,7 +264,7 @@
 </div>
 
 <div class="disc">⚠ FOR INFORMATIONAL PURPOSES ONLY — AI-powered analysis tool. All outputs are educational, not financial advice. Past performance does not indicate future results. Consult a SEBI-registered investment advisor before trading. Capital is at risk.</div>
-<footer>Arjun Alpha · Groq + Llama 3.3 70B · Kite Connect · Make.com · GitHub Pages · NSE/BSE · ₹0 operational cost</footer>
+<footer>Arjun Alpha · Claude Sonnet + Web Search · Kite Connect · Cloudflare Workers · GitHub Pages · NSE/BSE</footer>
 </div>
 
 <script>
@@ -415,13 +415,19 @@ OUTPUT: **VERDICT:** | **ACTION:** BUY/SELL/HOLD/WATCHLIST/NO TRADE | **SCORE:**
 
 async function callGroq(msg){
   const key=getCfg().groq;if(!key)throw new Error('Anthropic API key not set — enter in Configuration.');
-  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
-    headers:{'Content-Type':'application/json','anthropic-version':'2023-06-01','x-api-key':key,'anthropic-beta':'interleaved-thinking-2025-05-14'},
-    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4000,
+  const r=await fetch('https://arjun-alpha-proxy.vaibhavsharma3195.workers.dev/?action=claude',{method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      anthropic_key:key,
+      model:'claude-sonnet-4-20250514',
+      max_tokens:4000,
       tools:[{type:'web_search_20250305',name:'web_search'}],
-      system:SYS,messages:[{role:'user',content:msg}]})});
+      system:SYS,
+      messages:[{role:'user',content:msg}]
+    })});
   if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||'HTTP '+r.status);}
   const d=await r.json();
+  if(d.error)throw new Error(d.error.message||'Claude API error');
   return d.content.filter(b=>b.type==='text').map(b=>b.text).join('');
 }
 
