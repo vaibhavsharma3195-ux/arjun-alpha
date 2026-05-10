@@ -269,18 +269,8 @@
 
 <script>
 // ═══ HOLDINGS BASE DATA ═══
-const BASE=[
-  {sym:"BEL",       qty:19,  avg:414.54, ltp:441.60,  inv:7876.20,  sector:"Defence/PSU",      mktcap:"Large", pe:"38–42",  roe:"~22–25%",     debt:"~0.0–0.1",        notes:"Strong order book; Make-in-India. Watch order slowdown."},
-  {sym:"BSOFT",     qty:75,  avg:393.34, ltp:365.05,  inv:29500.80, sector:"IT Services",       mktcap:"Mid",   pe:"32–36",  roe:"~13–16%",     debt:"Debt-free",       notes:"USD revenue pressure. Watch deal wins & margin guidance."},
-  {sym:"CIPLA",     qty:9,   avg:1355.43,ltp:1211.30, inv:12198.90, sector:"Pharma",            mktcap:"Large", pe:"24–26",  roe:"~15–18%",     debt:"~0.02–0.05",      notes:"US FDA observations key. Domestic formulations growing."},
-  {sym:"HDFCBANK",  qty:20,  avg:917.26, ltp:794.70,  inv:18345.25, sector:"Banking (Private)", mktcap:"Large", pe:"18–20",  roe:"~13–15%",     debt:"Bank (CET-1>13%)",notes:"Post-merger NIM compression. Watch deposit growth & GNPA."},
-  {sym:"ICICIBANK", qty:15,  avg:1297.96,ltp:1351.10, inv:19469.35, sector:"Banking (Private)", mktcap:"Large", pe:"18–20",  roe:"~17–18%",     debt:"Bank (Tier-1 reg)",notes:"Best-in-class execution. Consistent GNPA improvement."},
-  {sym:"LICI",      qty:22,  avg:851.87, ltp:804.25,  inv:18741.10, sector:"Insurance (PSU)",   mktcap:"Large", pe:"11–35",  roe:"~22–24%",     debt:"Near debt-free",  notes:"VNB growth & embedded value are key monitorables."},
-  {sym:"LTTS",      qty:7,   avg:3923.38,ltp:3358.95, inv:27463.65, sector:"IT Eng. Services",  mktcap:"Mid",   pe:"33–40",  roe:"~21–24%",     debt:"~0.1–0.2",        notes:"ER&D slowdown globally. Transport & telecom verticals weak."},
-  {sym:"NTPC",      qty:28,  avg:339.73, ltp:386.25,  inv:9512.40,  sector:"Power/Utilities",   mktcap:"Large", pe:"13–15",  roe:"~11–12%",     debt:"High PSU (reg.)", notes:"Renewable mix improving. Tariff revisions upcoming catalyst."},
-  {sym:"PNB",       qty:476, avg:43.20,  ltp:110.75,  inv:20564.64, sector:"Banking (PSU)",     mktcap:"Large", pe:"~8–10x", roe:"~8–10%",      debt:"Bank structure",  notes:"+156% gain. NPA recovery maturing. Assess profit-booking."},
-  {sym:"TATAPOWER", qty:20,  avg:390.21, ltp:409.55,  inv:7804.20,  sector:"Power/Renewable",   mktcap:"Mid",   pe:"38–45",  roe:"Low–mid SD",  debt:"~0.8–1.2",        notes:"Solar EPC turning profitable. Mundra resolution key."},
-];
+let BASE=[];
+async function loadHoldings(){const cfg=getCfg();if(!cfg.kiteKey||!cfg.kiteAccess){renderPortfolio();return;}try{const r=await fetch(`https://arjun-alpha-proxy.vaibhavsharma3195.workers.dev/?api_key=${cfg.kiteKey}&access_token=${cfg.kiteAccess}&action=holdings`);const d=await r.json();if(d.status==='success'&&d.data){BASE=d.data.map(h=>({sym:h.tradingsymbol,qty:h.quantity,avg:h.average_price,ltp:h.last_price,inv:h.average_price*h.quantity,sector:'',mktcap:'',pe:'',roe:'',debt:'',notes:'',pe_range:'',roe_range:''}));renderPortfolio();}}catch(e){console.error('Holdings fetch failed',e);renderPortfolio();}}
 
 let livePrices={}, liveConnected=false, monTimer=null, scanN=0;
 
