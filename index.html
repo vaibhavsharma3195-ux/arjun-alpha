@@ -247,7 +247,7 @@
 <div class="cfg-panel">
   <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--blue);letter-spacing:2px;text-transform:uppercase">API Keys &amp; Automation</div>
   <div class="cfg-grid">
-    <div class="fld"><label>Groq API Key</label><input type="password" id="cfg-groq" placeholder="gsk_…" oninput="saveCfg()"/></div>
+    <div class="fld"><label>Anthropic API Key</label><input type="password" id="cfg-groq" placeholder="gsk_…" oninput="saveCfg()"/></div>
     <div class="fld"><label>Make.com LTP Webhook URL</label><input type="text" id="cfg-ltp-hook" placeholder="https://hook.eu2.make.com/…" oninput="saveCfg()"/></div>
     <div class="fld"><label>Make.com Alert/Email Webhook URL</label><input type="text" id="cfg-alert-hook" placeholder="https://hook.eu2.make.com/…" oninput="saveCfg()"/></div>
     <div class="fld"><label>Your Email</label><input type="email" id="cfg-email" placeholder="you@capgemini.com" oninput="saveCfg()"/></div>
@@ -414,13 +414,15 @@ PORTFOLIO: BEL 19sh@414.54 | BSOFT 75sh@393.34 | CIPLA 9sh@1355.43 | HDFCBANK 20
 OUTPUT: **VERDICT:** | **ACTION:** BUY/SELL/HOLD/WATCHLIST/NO TRADE | **SCORE:** X/10 | **KEY LEVELS:** Entry ₹X | SL ₹X | T1 ₹X | T2 ₹X | **RATIONALE:** bullets | **RISK:** key risks`;
 
 async function callGroq(msg){
-  const key=getCfg().groq;if(!key)throw new Error('Groq API key not set — enter in Configuration.');
-  const r=await fetch('https://api.groq.com/openai/v1/chat/completions',{method:'POST',
-    headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
-    body:JSON.stringify({model:'llama-3.3-70b-versatile',max_tokens:2000,temperature:.3,
-      messages:[{role:'system',content:SYS},{role:'user',content:msg}]})});
+  const key=getCfg().groq;if(!key)throw new Error('Anthropic API key not set — enter in Configuration.');
+  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
+    headers:{'Content-Type':'application/json','anthropic-version':'2023-06-01','x-api-key':key,'anthropic-beta':'interleaved-thinking-2025-05-14'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4000,
+      tools:[{type:'web_search_20250305',name:'web_search'}],
+      system:SYS,messages:[{role:'user',content:msg}]})});
   if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||'HTTP '+r.status);}
-  return(await r.json()).choices[0].message.content;
+  const d=await r.json();
+  return d.content.filter(b=>b.type==='text').map(b=>b.text).join('');
 }
 
 // ═══ ANALYSIS BOTS ═══
