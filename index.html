@@ -270,7 +270,7 @@
 <script>
 // ═══ HOLDINGS BASE DATA ═══
 let BASE=[];
-async function async function async function async function loadHoldings(){const cfg=getCfg();if(!cfg.kiteKey||!cfg.kiteAccess){renderPortfolio();return;}try{const r=await fetch(`https://arjun-alpha-proxy.vaibhavsharma3195.workers.dev/?api_key=${cfg.kiteKey}&access_token=${cfg.kiteAccess}&action=holdings`);const d=await r.json();if(d.status==='success'&&d.data){BASE=d.data.map(h=>({sym:h.tradingsymbol,qty:h.quantity,avg:h.average_price,ltp:h.last_price,inv:h.average_price*h.quantity,sector:'',mktcap:'',pe:'',roe:'',debt:'',notes:''}));renderPortfolio();liveConnected=true;document.getElementById('kite-badge').innerHTML='<div class="dot dot-g"></div>KITE: LIVE';document.getElementById('kite-badge').className='bdg bdg-g';}}catch(e){console.error('Holdings fetch failed',e);renderPortfolio();}}
+async function loadHoldings(){const cfg=getCfg();if(!cfg.kiteKey||!cfg.kiteAccess){renderPortfolio();return;}try{const r=await fetch(`https://arjun-alpha-proxy.vaibhavsharma3195.workers.dev/?api_key=${cfg.kiteKey}&access_token=${cfg.kiteAccess}&action=holdings`);const d=await r.json();if(d.status==='success'&&d.data){BASE=d.data.map(h=>({sym:h.tradingsymbol,qty:h.quantity,avg:h.average_price,ltp:h.last_price,inv:h.average_price*h.quantity,sector:'',mktcap:'',pe:'',roe:'',debt:'',notes:''}));renderPortfolio();liveConnected=true;document.getElementById('kite-badge').innerHTML='<div class="dot dot-g"></div>KITE: LIVE';document.getElementById('kite-badge').className='bdg bdg-g';}}catch(e){console.error('Holdings fetch failed',e);renderPortfolio();}}
 
 let livePrices={}, liveConnected=false, monTimer=null, scanN=0;
 
