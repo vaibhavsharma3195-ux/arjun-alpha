@@ -492,7 +492,7 @@ function getCfg(){const s=localStorage.getItem('arjunAlphaCfg');const c=s?JSON.p
 function updateClock(){const ist=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Kolkata'}));const hh=String(ist.getHours()).padStart(2,'0'),mm=String(ist.getMinutes()).padStart(2,'0'),ss=String(ist.getSeconds()).padStart(2,'0');const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];document.getElementById('clock').textContent=`${days[ist.getDay()]} ${hh}:${mm}:${ss} IST`;}
 function setNextThursday(){const ist=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Kolkata'}));const d=(4-ist.getDay()+7)%7||7;const nxt=new Date(ist);nxt.setDate(ist.getDate()+d);const s=nxt.toLocaleDateString('en-IN',{month:'short',day:'numeric',timeZone:'Asia/Kolkata'});document.getElementById('p-thu').textContent=s+' · 10:00 AM IST';document.getElementById('next-lbl').textContent='Next weekly: Thu '+s;}
 
-getCfg();renderPortfolio();setNextThursday();setInterval(updateClock,1000);updateClock();
+getCfg();loadHoldings();setNextThursday();setInterval(updateClock,1000);updateClock();
 </script>
 </body>
 </html>
