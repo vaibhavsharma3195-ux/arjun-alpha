@@ -402,12 +402,43 @@ async function doScan(){
   }catch(e){document.getElementById('mon-status').textContent=`Scan #${scanN} — error: ${e.message}`;}
 }
 
-// ═══ GROQ ═══
-const SYS=`You are Arjun Alpha, Chief Equity Strategist, 25+ years NSE/BSE. Use web search for latest data.
+// ═══ CLAUDE AI ═══
+const SYS=`You are Arjun Alpha, Chief Equity Strategist, 25+ years NSE/BSE. Use web search for latest data before responding.
 RULES: Buy needs 6/7 fundamentals (Low Debt|ROE>15%|CFO/PAT>1|Growth>20%|PEG<1.5|Governance|Tailwinds) AND 3/4 technicals (RSI<70|Vol 2x|Breakout|Above 200DMA).
 SELL triggers: PEG>2|PAT decline|Below 200DMA|Better opportunity|Governance issue|Wealth maximization.
 SCORE /10: Fundamentals 4|Technicals 3|Portfolio fit 2|Risk 1. 8-10=Buy|6-7=Hold|<6=Sell/Reject.
-OUTPUT: **VERDICT**|**ACTION**|**SCORE X/10**|**KEY LEVELS** Entry/SL/T1/T2|**RATIONALE**|**RISK**`;
+ALWAYS respond in this exact JSON format only, no markdown, no preamble, no explanation outside JSON:
+{"verdict":"BUY|HOLD|SELL|WATCHLIST|NO TRADE","action":"BUY|HOLD|SELL|WATCHLIST|NO TRADE","score":7,"fundamental_score":"3/4","technical_score":"2/3","entry":"₹XXX","sl":"₹XXX","t1":"₹XXX","t2":"₹XXX","rationale":["bullet 1","bullet 2","bullet 3"],"risks":["risk 1","risk 2"],"news":[{"headline":"News headline","impact":"POSITIVE|NEGATIVE|NEUTRAL"}],"sell_triggers":{"peg_over2":false,"pat_decline":false,"below_200dma":false,"thesis_violation":false,"wealth_max":false},"summary":"One line plain English summary"}`;
+
+function renderAnalysisCard(j){
+  const vColors={BUY:'#1B5E20',HOLD:'#E65100',SELL:'#B71C1C',WATCHLIST:'#1565C0','NO TRADE':'#4A4A4A'};
+  const vBg={BUY:'#E8F5E9',HOLD:'#FFF3E0',SELL:'#FFEBEE',WATCHLIST:'#E3F2FD','NO TRADE':'#F5F5F5'};
+  const v=j.verdict||'HOLD';
+  const col=vColors[v]||'#333';
+  const bg=vBg[v]||'#F5F5F5';
+  const scoreColor=j.score>=8?'#1B5E20':j.score>=6?'#E65100':'#B71C1C';
+  const triggerHtml=j.sell_triggers?Object.entries({'PEG>2':j.sell_triggers.peg_over2,'PAT Decline':j.sell_triggers.pat_decline,'Below 200DMA':j.sell_triggers.below_200dma,'Thesis Violation':j.sell_triggers.thesis_violation,'Wealth Max':j.sell_triggers.wealth_max}).map(([k,v])=>`<span style="display:inline-block;padding:2px 8px;margin:2px;border-radius:2px;font-size:9px;font-family:'DM Mono',monospace;background:${v?'rgba(183,28,28,.15)':'rgba(76,175,122,.1)'};color:${v?'#B71C1C':'#4CAF7A'};border:1px solid ${v?'rgba(183,28,28,.3)':'rgba(76,175,122,.3)'}">${v?'⚠':'✓'} ${k}</span>`).join(''):'';
+  const rationaleHtml=(j.rationale||[]).map(r=>`<li style="margin-bottom:6px;color:var(--text);font-size:12px;line-height:1.6">${r}</li>`).join('');
+  const riskHtml=(j.risks||[]).map(r=>`<li style="margin-bottom:6px;color:#E05555;font-size:12px;line-height:1.6">${r}</li>`).join('');
+  const newsHtml=(j.news||[]).map(n=>{const nc=n.impact==='POSITIVE'?'#1B5E20':n.impact==='NEGATIVE'?'#B71C1C':'#555';const nb=n.impact==='POSITIVE'?'rgba(27,94,32,.08)':n.impact==='NEGATIVE'?'rgba(183,28,28,.08)':'rgba(0,0,0,.04)';return`<div style="padding:8px 12px;margin-bottom:6px;background:${nb};border-left:3px solid ${nc};font-size:11px;color:var(--text);line-height:1.5"><span style="font-size:9px;font-family:'DM Mono',monospace;color:${nc};font-weight:bold">${n.impact}</span><br>${n.headline}</div>`;}).join('');
+  return`<div style="font-family:'DM Sans',sans-serif">
+    <div style="display:flex;align-items:center;gap:16px;padding:16px;background:${bg};border:2px solid ${col};border-radius:3px;margin-bottom:16px">
+      <div style="background:${col};color:#fff;padding:10px 20px;border-radius:2px;font-family:'Playfair Display',serif;font-size:22px;font-weight:700;white-space:nowrap">${v}</div>
+      <div style="flex:1"><div style="font-size:12px;color:#666;font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Verdict</div><div style="font-size:13px;color:#333;line-height:1.5">${j.summary||''}</div></div>
+      <div style="text-align:center;background:#fff;padding:10px 16px;border:1px solid ${col};border-radius:2px"><div style="font-size:28px;font-weight:700;font-family:'Playfair Display',serif;color:${scoreColor}">${j.score}<span style="font-size:14px;color:#999">/10</span></div><div style="font-size:9px;font-family:'DM Mono',monospace;color:#777;letter-spacing:1px">SCORE</div><div style="font-size:9px;font-family:'DM Mono',monospace;color:#999;margin-top:2px">F:${j.fundamental_score||'—'} T:${j.technical_score||'—'}</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px">
+      ${[['ENTRY',j.entry,'#1565C0'],['STOP LOSS',j.sl,'#B71C1C'],['TARGET 1',j.t1,'#1B5E20'],['TARGET 2',j.t2,'#2E7D32']].map(([lbl,val,c])=>`<div style="text-align:center;padding:10px;border:1px solid ${c};border-top:3px solid ${c};background:#fff"><div style="font-size:9px;font-family:'DM Mono',monospace;color:#777;letter-spacing:1px;margin-bottom:4px">${lbl}</div><div style="font-size:16px;font-weight:700;font-family:'Playfair Display',serif;color:${c}">${val||'—'}</div></div>`).join('')}
+    </div>
+    ${triggerHtml?`<div style="margin-bottom:16px"><div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">SELL FRAMEWORK CHECK</div>${triggerHtml}</div>`:''}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+      <div style="background:var(--surface);border:1px solid var(--border);padding:12px"><div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--gold);letter-spacing:2px;margin-bottom:10px">RATIONALE</div><ul style="padding-left:16px;margin:0">${rationaleHtml}</ul></div>
+      <div style="background:var(--surface);border:1px solid rgba(224,85,85,.2);padding:12px"><div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--red);letter-spacing:2px;margin-bottom:10px">KEY RISKS</div><ul style="padding-left:16px;margin:0">${riskHtml}</ul></div>
+    </div>
+    ${newsHtml?`<div style="margin-bottom:8px"><div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--blue);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">LATEST NEWS & CATALYSTS</div>${newsHtml}</div>`:''}
+  </div>`;
+}
+
 async function callGroq(msg){
   const key=getCfg().groq;if(!key)throw new Error('Anthropic API key not set — enter in Configuration.');
   const r=await fetch('https://arjun-alpha-proxy.vaibhavsharma3195.workers.dev/?action=claude',{method:'POST',
@@ -416,16 +447,15 @@ async function callGroq(msg){
       anthropic_key:key,
       model:'claude-sonnet-4-20250514',
       max_tokens:4000,
-     tools:[{type:'web_search_20250305',name:'web_search',max_uses:2}],
+      tools:[{type:'web_search_20250305',name:'web_search',max_uses:2}],
       system:SYS,
       messages:[{role:'user',content:msg}]
     })});
   if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||'HTTP '+r.status);}
   const d=await r.json();
   if(d.error)throw new Error(d.error.message||'Claude API error');
-  return d.content.filter(b=>b.type==='text').map(b=>b.text).join('').replace(/Let me [^.]*\.\s*/g,'').replace(/I'll [^.]*\.\s*/g,'').trim();
+  return d.content.filter(b=>b.type==='text').map(b=>b.text).join('').replace(/```json|```/g,'').trim();
 }
-
 // ═══ ANALYSIS BOTS ═══
 async function runPM(){
   const stk=document.getElementById('pm-stk').value,foc=document.getElementById('pm-focus').value;
@@ -466,7 +496,8 @@ async function query(msg,title){
   try{
     const result=await callGroq(msg);clearInterval(iv);le.classList.remove('on');
     document.getElementById('otitle').textContent=title;document.getElementById('opanel').classList.add('on');
-    document.getElementById('stream-out').innerHTML=result.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+    let rendered;try{const j=JSON.parse(result);rendered=renderAnalysisCard(j);}catch(e){rendered=result.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');}
+document.getElementById('stream-out').innerHTML=rendered;
   }catch(e){
     clearInterval(iv);le.classList.remove('on');document.getElementById('otitle').textContent='ERROR';document.getElementById('opanel').classList.add('on');
     document.getElementById('stream-out').innerHTML=`<span style="color:var(--red)">⚠ ${e.message}</span><br><br><span style="color:var(--text-dim);font-size:11px">Get free Groq key at <a href="https://console.groq.com" target="_blank" style="color:var(--gold)">console.groq.com</a></span>`;
