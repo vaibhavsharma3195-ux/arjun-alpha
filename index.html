@@ -436,9 +436,9 @@ async function loadHoldings() {
 
 let livePrices = {}, liveConnected = false, monTimer = null, scanN = 0;
 
-// ── Cost optimisation 1: model constants ──────────────────────────────────
+// ── Cost optimisation 1:  constants ──────────────────────────────────
 const MODEL_FAST = 'claude-haiku-4-5-20251001';  // chat & monitor scans
-const MODEL_DEEP = 'claude-sonnet-4-20250514';    // full analysis & weekly report
+const MODEL_DEEP = 'claude-sonnet-5';    // full analysis & weekly report
 
 // ── Cost optimisation 2: 30-min analysis cache ────────────────────────────
 const analysisCache = {};
